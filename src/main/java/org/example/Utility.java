@@ -88,28 +88,38 @@ public class Utility {
         }catch (IOException e) {e.printStackTrace();}
         return message;
     }
-    public static String checkForFixableSpellingError(String original, String userInput) {
+ public static String checkForFixableSpellingError(String original, String userInput) {
+        /**עבדתי על שני פרוייקטים של הבוט במקביל, שיניתי את המתודה הזאת לטובה אבל בקובץ שלא העלתי ל-github
+         * כי לא שמתי לב. הוספתי את זה לאחר שליחת העבודה. אם הציון ירד בגלל זה כמובן שלא יהיו לי תלונות. **/
+
         userInput = userInput.toLowerCase();
         original = original.toLowerCase();
-        int lenOrig = original.length();
-        int lenUser = userInput.length();
+
         if (userInput.equals(original)) return original;
-        if (Math.abs(lenOrig - lenUser) > 1) return "";
+
+        // אפשר רק לטעות בהוספת אות אחת או בהפחתת אות אחת מהחרוזת המקורית
+        if (Math.abs(original.length() - userInput.length()) > 1) return "";
+
+        // אם המחרוזת המקורית קטנה מ-7 אפשר לטעות במיקום של אות אחת. אחרת אפשר לטעות במיקום של שני אותיות.
+        int maxMismatches = original.length() < 7 ? 1 : 2;
+
+        int i = 0, j = 0;
         int mismatchCount = 0;
-        for (int i = 0, j = 0; i < lenOrig && j < lenUser;) {
+        while (i < original.length() && j < userInput.length()) {
             if (original.charAt(i) != userInput.charAt(j)) {
                 mismatchCount++;
-                if (mismatchCount > 1) return "";
-                if (lenOrig < lenUser) j++;
-                else if (lenOrig > lenUser) i++;
+                if (mismatchCount > maxMismatches) return "";
+                if (original.length() < userInput.length()) j++;
+                else if (original.length() > userInput.length()) i++;
                 else { i++; j++; }
             } else {
                 i++; j++;
             }
         }
-        if (lenOrig != lenUser && mismatchCount == 0) mismatchCount++;
-        if (mismatchCount == 1) return original;
-        return "";
+        if (j < userInput.length() && i >= original.length()) mismatchCount++;
+        if (i < original.length() && j >= userInput.length()) mismatchCount++;
+        if (mismatchCount > maxMismatches) return "";
+        return original;
     }
 
 }
